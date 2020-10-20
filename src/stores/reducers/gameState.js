@@ -5,8 +5,8 @@ const init = {
     boardSize: 15,
     // foodPosition: Object.assign({}, dPattern, {x: 4, y: 4}),
     foodPosition: {
-        "x": 2,
-        "y": 49
+        "x": 5,
+        "y": 5
     },
     // snakePosition: [dPattern],
     snakePosition: [
