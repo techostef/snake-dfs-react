@@ -5,6 +5,13 @@
     align-items: center;
     padding: 0 10px;
     background-color: #dcd5d5;
+    .board-size-control {
+        align-items: center;
+        display: flex;
+    }
+    .start-button {
+        margin-left: auto;
+    }
     .restart-button {
         margin-left: auto;
     }

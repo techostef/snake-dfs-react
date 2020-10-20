@@ -3,12 +3,15 @@ import "./BoardHeader.scss"
 import { Button } from 'react-bootstrap'
 import * as appStateAction from "../stores/actions/appStateAction"
 import * as gameBusinessAction from "../stores/actions/business/gameBusinessAction"
+import * as gameStateAction from "../stores/actions/gameStateAction"
 import { connect } from "react-redux"
 import { bindActionCreators } from "redux"
+import InputRange from "../components/inputs/InputRange"
 
 const mapStateToProps = (state) => {
     return {
-        startGame: state.appState.startGame
+        startGame: state.appState.startGame,
+        boardSize: state.gameState.boardSize
     }
 }
 
@@ -16,6 +19,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         appStateAction: bindActionCreators(appStateAction, dispatch),
         gameBusinessAction: bindActionCreators(gameBusinessAction, dispatch),
+        gameStateAction: bindActionCreators(gameStateAction, dispatch),
     }
 }
 
@@ -32,8 +36,25 @@ const BoardHeader = (props) => {
         }
     }
 
+    const onChangeBoardSize = (e) => {
+        const { gameStateAction } = props
+        gameStateAction.setBoarSize(e.target.value)
+    }
+
     return (
         <div className="board-header">
+            <div className="board-size-control">
+                <div className="text-content">
+                    Board Size
+                </div>
+                <InputRange 
+                    disabled={props.startGame}
+                    value={props.boardSize} 
+                    min={3}
+                    max={100}
+                    onChange={onChangeBoardSize} 
+                />
+            </div>
             <Button 
                 className="start-button" 
                 onClick={startStopGame}
