@@ -1,0 +1,11 @@
+.board-header  {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background-color: #dcd5d5;
+    .restart-button {
+        margin-left: auto;
+    }
+}
