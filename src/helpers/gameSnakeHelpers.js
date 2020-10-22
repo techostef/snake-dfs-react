@@ -223,7 +223,7 @@ export const generateFoodPosition = (snakePosition, boardSize) => {
     }
 }
 
-export const getMoveExcept = (visitedPosition = [], headSnake = dPattern) => {
+export const getMoveExcept = (visitedPosition = [], headSnake = dPattern, boardSize) => {
     let { x: headSnakeX, y: headSnakeY } = headSnake
     let headSnakeTemp = {x: headSnakeX, y: headSnakeY}
     let except = false
@@ -238,8 +238,11 @@ export const getMoveExcept = (visitedPosition = [], headSnake = dPattern) => {
         else if (i === 3)
             headSnakeTemp = {x: headSnakeX, y: headSnakeY - 1}
 
+        if (!checkOutsideBoardSize(headSnakeTemp, boardSize)) 
         // eslint-disable-next-line no-loop-func
-        index = visitedPosition.findIndex((item) => isEqualPattern(item, headSnakeTemp))
+            index = visitedPosition.findIndex((item) => isEqualPattern(item, headSnakeTemp))
+        else 
+            index = 0
         if (index === -1) {
             except = true
             break
@@ -254,7 +257,7 @@ export const checkOutsideBoardSize = (position = dPattern, boardSize) => {
     return (position.x > boardSize) || (position.y > boardSize) || (position.x < 0) || (position.y < 0)
 }
 
-export const moveNext = (headPosition, foodPosition, snakePosition, boardSize) => {
+export const moveNext = (headPosition, foodPosition, obstaclePosition, boardSize) => {
     if (headPosition.x === foodPosition.x && headPosition.y === foodPosition.y) return headPosition
     const moveXP1 = Object.assign({}, headPosition, { x: headPosition.x + 1 })
     const moveXM1 = Object.assign({}, headPosition, { x: headPosition.x - 1 })
@@ -285,36 +288,42 @@ export const moveNext = (headPosition, foodPosition, snakePosition, boardSize) =
 
     const moveXNext = () => {
         if (headPosition.x > foodPosition.x) {
-            if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, -1), snakePosition) >= 0) return moveXP1
+            if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, -1), obstaclePosition) >= 0) return moveXP1
             return moveXM1
         } 
         else if (headPosition.x < foodPosition.x) {
-            if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, 1), snakePosition) >= 0) return moveXM1
+            if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, 1), obstaclePosition) >= 0) return moveXM1
             return moveXP1
         }
-        else if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, -1), snakePosition) >= 0) return moveXP1
+        else if (indexOfPattern(incrementPattern(headPosition, gameEnums.X, -1), obstaclePosition) >= 0) return moveXP1
         else return moveXM1
     }
 
     const moveYNext = () => {
         if (headPosition.y > foodPosition.y) {
-            if (indexOfPattern(incrementPattern(headPosition, gameEnums.Y, -1), snakePosition) >= 0) return moveYP1
+            if (indexOfPattern(incrementPattern(headPosition, gameEnums.Y, -1), obstaclePosition) >= 0) return moveYP1
             return moveYM1
         }
-        else if (indexOfPattern(incrementPattern(headPosition, gameEnums.Y, 1), snakePosition) >= 0) return moveYM1
+        else if (headPosition.y < foodPosition.y) {
+            if (indexOfPattern(incrementPattern(headPosition, gameEnums.Y, 1), obstaclePosition) >= 0) return moveYM1
+            return moveYP1
+        }
+        else if (indexOfPattern(incrementPattern(headPosition, gameEnums.Y, 1), obstaclePosition) >= 0) return moveYM1
         else return moveYP1
     }
     
     if (headPosition.y === foodPosition.y) {
-        nextMove = moveXNext()
+        nextMove = moveXNextDefault()
         if (checkOutsideBoardSize(nextMove, boardSize)) return moveYNext()
-        if (snakePosition.length > 1 && indexOfPattern(nextMove, snakePosition) >= 0) return moveYNext()
+        if (obstaclePosition.length > 1 && indexOfPattern(nextMove, obstaclePosition) >= 0) return moveYNext()
+        nextMove = moveXNext()
         return nextMove
     }
     else if (headPosition.x === foodPosition.x) {
-        nextMove = moveYNext()
+        nextMove = moveYNextDefault()
         if (checkOutsideBoardSize(nextMove, boardSize)) return moveXNext()
-        else if (snakePosition.length > 1 && indexOfPattern(nextMove, snakePosition) >= 0) return moveXNext()
+        else if (obstaclePosition.length > 1 && indexOfPattern(nextMove, obstaclePosition) >= 0) return moveXNext()
+        nextMove = moveYNext()
         return nextMove
     }
     else {
@@ -322,27 +331,27 @@ export const moveNext = (headPosition, foodPosition, snakePosition, boardSize) =
         let gapY = Math.abs(headPosition.y - foodPosition.y)
         if (gapX <= gapY) {
             nextMove = moveXNextDefault()
-            if (snakePosition.length > 1 && indexOfPattern(nextMove, snakePosition) >= 0) {
+            if (obstaclePosition.length > 1 && indexOfPattern(nextMove, obstaclePosition) >= 0) {
                 nextMoveReverse = moveXNextDefaultReverse()
-                nextMove = moveXNextDefault()
-                if (snakePosition.length > 1) 
-                    if (indexOfPattern(nextMove, snakePosition) >= 0)
-                        if (indexOfPattern(nextMoveReverse, snakePosition) === -1 && !checkOutsideBoardSize(nextMoveReverse, boardSize)) 
+                nextMove = moveYNextDefault()
+                if (indexOfPattern(nextMove, obstaclePosition) >= 0)
+                        if (indexOfPattern(nextMoveReverse, obstaclePosition) === -1 && !checkOutsideBoardSize(nextMoveReverse, boardSize)) 
                             return nextMoveReverse
-                return moveYNext()
+                nextMove = moveYNext()
+                return nextMove
             }
             return nextMove
         }
         else if (gapX >= gapY) {
             nextMove = moveYNextDefault()
-            if (snakePosition.length > 1 && indexOfPattern(nextMove, snakePosition) >= 0) {
+            if (obstaclePosition.length > 1 && indexOfPattern(nextMove, obstaclePosition) >= 0) {
                 nextMoveReverse = moveYNextDefaultReverse()
                 nextMove = moveXNextDefault()
-                if (snakePosition.length > 1)
-                    if (indexOfPattern(nextMove, snakePosition) >= 0)
-                        if (indexOfPattern(nextMoveReverse, snakePosition) === -1 && !checkOutsideBoardSize(nextMoveReverse, boardSize)) 
+                if (indexOfPattern(nextMove, obstaclePosition) >= 0)
+                        if (indexOfPattern(nextMoveReverse, obstaclePosition) === -1 && !checkOutsideBoardSize(nextMoveReverse, boardSize)) 
                             return nextMoveReverse
-                return moveXNext()
+                nextMove = moveXNext()
+                return nextMove
             }
             return nextMove
         }

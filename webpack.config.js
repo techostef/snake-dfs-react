@@ -12,7 +12,7 @@ module.exports = {
    },
    devServer: {
       inline: true,
-      port: 8001,
+      port: 4000,
       historyApiFallback: true
    },
    optimization: {

@@ -131,8 +131,9 @@ const BoardComponent = (props) => {
                     prevStep()
                     continue
                 }
-                nextStep = getMoveExcept(visited[currentPosition], snakePositionTemp[0])
-                if (!nextStep) {
+                nextStep = getMoveExcept(visited[currentPosition], snakePositionTemp[0], boardSize)
+                
+                if (!nextStep || indexOfPattern(nextStep, snakePositionTemp) >= 0) {
                     prevStep()
                     continue
                 }
